@@ -45,47 +45,6 @@ p
 ### Feature Importance of Random Forest
 <div style="text-align: center;">
 ```{r, echo=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
-create_imp_plot <- function(model, low, high, title) {
-  imp <- varImp(model, scale = FALSE)
-  imp_data <- imp$importance |>
-  tibble::rownames_to_column("Variable") |>
-  arrange(desc(Overall)) |>
-  head(20)
-  
-  # p <- ggplot(imp_data, aes(x = reorder(Variable, Overall), y = Overall, 
-  #                         text = paste("Variable:", Variable, "<br>Importance:", Overall))) +
-  # geom_bar(stat = "identity", fill = "#3182bd") +
-  # coord_flip() +
-  # labs(x = NULL, y = "Importance Score") +
-  # theme_minimal()
-  
-  p <- ggplot(imp_data, aes(x = reorder(Variable, Overall), y = Overall, 
-                            fill = Overall, 
-                            text = paste("Variable:", Variable, "<br>Importance:", Overall))) +
-  geom_bar(stat = "identity", width = 0.7) +
-  scale_fill_gradient(
-    low = "#f0f9e8",
-    high = "#238b45",
-    name = "Importance"
-  ) +
-  coord_flip() +
-  labs(
-    title = title,
-    x = NULL,
-    y = "Importance Score"
-  ) +
-  theme_minimal(base_size = 10) +
-  theme(
-    plot.title = element_text(face = "bold", size = 13),
-    axis.text.y = element_text(size = 10),
-    legend.position = "right",
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank()
-  )
-
-  ggplotly(p, tooltip = "text")
-}
-
 create_imp_plot(rf_model, "#f0f9e8", "#238b45", "Top 20 Most Important Variables (Random Forest)")
 ```
 </div>
