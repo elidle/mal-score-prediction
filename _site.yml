@@ -1,0 +1,29 @@
+name: "MyAnimeList Score of Modern Anime Prediction"
+title: "MyAnimeList Score of Modern Anime Prediction"
+output_dir: "_site"
+
+navbar:
+  title: "MyAnimeList Score of Modern Anime Prediction"
+  left:
+    - text: "About"
+      href: about.html
+    - text: "EDA"
+      href: eda.html
+    - text: "Model"
+      href: model.html
+  right:
+    - icon: fas fa-envelope
+      href: mailto:razan.rifandi@mail.utoronto.ca
+    - icon: fab fa-github
+      href: https://github.com/elidle/mal-score-prediction
+    - icon: fab fa-linkedin
+      href: https://linkedin.com/in/razan-ahsan
+
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    includes:
+      after_body: footer.html
+    css: style.css

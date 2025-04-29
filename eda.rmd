@@ -1,0 +1,361 @@
+---
+title: "Exploratory Data Analysis"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+## Feature Distributions (Categorical) {.tabset}
+
+### Type
+
+```{r, echo=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+library(httr)
+library(jsonlite)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(gridExtra)
+library(kableExtra)
+library(GGally)
+library(plotly)
+
+anime_data <- read.csv("https://raw.githubusercontent.com/elidle/mal-score-prediction/refs/heads/main/data/mal_anime_2015_2024.csv")
+
+suppressMessages({
+  suppressWarnings({
+    anime_data |>
+      group_by(type) |>
+      summarise(
+        count = n(), .groups = 'drop',
+        score_mean = mean(score, na.rm = TRUE),
+        score_median = median(score, na.rm = TRUE),
+        score_min = min(score, na.rm = TRUE),
+        score_max = max(score, na.rm = TRUE),
+        score_sd = sd(score, na.rm = TRUE)
+      ) |>
+      arrange(desc(score_mean)) |>
+      kable(caption = "Summary statistics of Scores grouped by Type") |>
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  })
+})
+```
+
+### Source
+
+```{r, echo=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+anime_data |>
+  group_by(source) |>
+  summarise(
+    count = n(), .groups = 'drop',
+    score_mean = mean(score, na.rm = TRUE),
+    score_median = median(score, na.rm = TRUE),
+    score_min = min(score, na.rm = TRUE),
+    score_max = max(score, na.rm = TRUE),
+    score_sd = sd(score, na.rm = TRUE)
+  ) |>
+  arrange(desc(score_mean)) |>
+  kable(caption = "Summary statistics of Scores grouped by Source") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+### Rating
+
+```{r, echo=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+anime_data |>
+  group_by(rating) |>
+  summarise(
+    count = n(), .groups = 'drop',
+    score_mean = mean(score, na.rm = TRUE),
+    score_median = median(score, na.rm = TRUE),
+    score_min = min(score, na.rm = TRUE),
+    score_max = max(score, na.rm = TRUE),
+    score_sd = sd(score, na.rm = TRUE)
+  ) |>
+  arrange(desc(score_mean)) |>
+  kable(caption = "Summary statistics of Scores grouped by Rating") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+### Genre
+
+```{r, echo=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+anime_data |>
+  separate_rows(genres, sep = ", ") |>
+  group_by(genres) |>
+  summarise(
+    count = n(), .groups = 'drop',
+    score_mean = mean(score, na.rm = TRUE),
+    score_median = median(score, na.rm = TRUE),
+    score_min = min(score, na.rm = TRUE),
+    score_max = max(score, na.rm = TRUE),
+    score_sd = sd(score, na.rm = TRUE)
+  ) |>
+  arrange(desc(score_mean)) |>
+  kable(caption = "Summary statistics of Score grouped by Each Genre") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+### Studio
+
+```{r, echo=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+anime_data |>
+  separate_rows(studios, sep = ", ") |>
+  group_by(studios) |>
+  summarise(
+    count = n(), .groups = 'drop',
+    score_mean = mean(score, na.rm = TRUE),
+    score_median = median(score, na.rm = TRUE),
+    score_min = min(score, na.rm = TRUE),
+    score_max = max(score, na.rm = TRUE),
+    score_sd = sd(score, na.rm = TRUE)
+  ) |>
+  arrange(desc(score_mean)) |>
+  kable(caption = "Summary statistics of Score grouped by Each Genre") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+## Feature Distributions (Categorical) {.tabset}
+
+### Year
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+p <- anime_data |>
+  group_by(year) |>
+  summarise(count = n(), .groups = 'drop') |>
+  ggplot(aes(x = factor(year), y = count, 
+             text = paste("Year:", year, "<br>Count:", count))) +  
+  geom_bar(stat = "identity", fill = "steelblue", color = "black") +     
+  labs(title = "Number of Anime by Year",             
+       x = "Year",                                    
+       y = "Count") +                                  
+  theme_minimal()
+
+ggplotly(p, tooltip = "text")
+```
+
+### Score
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+p <- anime_data |>
+  ggplot(aes(x = score)) +
+  geom_histogram(
+    binwidth = 0.5, 
+    fill = "steelblue", 
+    color = "black",
+    aes(text = paste("Score range:", x-0.25, "-", x+0.25, 
+                    "<br>Count:", after_stat(count)))
+  ) +
+  labs(title = "Distribution of Anime Scores",
+       x = "Score",
+       y = "Count") +
+  theme_minimal()
+
+ggplotly(p, tooltip = "text")
+```
+
+### Members
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+p <- anime_data |>
+  ggplot(aes(x = members)) +
+  geom_histogram(fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Anime Members",
+       x = "Members",
+       y = "Count") +
+  theme_minimal()
+
+ggplotly(p)
+```
+
+### Members (logged)
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+p <- anime_data |>
+  ggplot(aes(x = log(members + 1))) +
+  geom_histogram(fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Anime Members (logged)",
+       x = "Members",
+       y = "Count") +
+  theme_minimal()
+
+ggplotly(p)
+```
+
+### Favorites
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+p <- anime_data |>
+  ggplot(aes(x = favorites)) +
+  geom_histogram(fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Anime Favorites",
+       x = "Favorites",
+       y = "Count") +
+  theme_minimal()
+
+ggplotly(p)
+```
+
+### Favorites (logged)
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+p <- anime_data |>
+  ggplot(aes(x = log(favorites + 1))) +
+  geom_histogram(fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Anime Favorites (logged)",
+       x = "Favorites",
+       y = "Count") +
+  theme_minimal()
+
+ggplotly(p)
+```
+
+## Score Distribution Plots {.tabset}
+
+### Score vs. Type
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+library(plotly)
+
+p <- anime_data |>
+  ggplot(aes(x = type, y = score, fill = type, 
+             text = paste("Type:", type, "<br>",
+                          "Median Score:", round(median(score, na.rm = TRUE), 2), "<br>",
+                          "Count:", length(score)))) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Score by Type",
+       x = "Type",
+       y = "Score") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+ggplotly(p, tooltip = "text") %>%
+  layout(hoverlabel = list(bgcolor = "white",
+                          font = list(size = 12)),
+         title = list(text = "Box Plot of Score by Type",
+                     x = 0.05))
+```
+
+### Score vs. Source
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+p <- anime_data |>
+  ggplot(
+    aes(
+      x = source, 
+      y = score, 
+      fill = source,
+      text = paste(
+        "Source:", source, "<br>",
+        "Median Score:", round(median(score, na.rm = TRUE), 2), "<br>",
+        "Q1:", round(quantile(score, 0.25, na.rm = TRUE), 2), "<br>",
+        "Q3:", round(quantile(score, 0.75, na.rm = TRUE), 2), "<br>",
+        "Count:", sum(!is.na(score))
+      )
+    )
+  ) +
+  geom_boxplot() +
+  labs(
+    title = "Box Plot of Score by Source",
+    x = "Source",
+    y = "Score"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+ggplotly(p, tooltip = "text") %>%
+  layout(
+    hoverlabel = list(
+      bgcolor = "white",
+      font = list(size = 12)
+    ),
+    margin = list(b = 100),
+    xaxis = list(tickangle = -45)
+  )
+```
+
+### Score vs. Rating
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+p <- anime_data |>
+  ggplot(aes(x = rating, y = score, fill = rating,
+             text = paste("Rating:", rating, "<br>",
+                          "Median Score:", round(median(score, na.rm = TRUE), 2), "<br>",
+                          "Count:", length(score)))) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Score by Age Rating",
+       x = "Rating",
+       y = "Score") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplotly(p, tooltip = "text") %>%
+  layout(hoverlabel = list(bgcolor = "white",
+                          font = list(size = 12)),
+         title = list(text = "Box Plot of Score by Age Rating",
+                     x = 0.05),
+         xaxis = list(tickangle = -45))
+```
+
+### Score vs. Year
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+p <- anime_data |>
+  ggplot(
+    aes(
+      x = rating, 
+      y = score, 
+      fill = rating,
+      text = paste(
+        "Age Rating:", rating, "<br>",
+        "Median Score:", round(median(score, na.rm = TRUE), 2), "<br>",
+        "Q1 (25th %ile):", round(quantile(score, 0.25, na.rm = TRUE), 2), "<br>",
+        "Q3 (75th %ile):", round(quantile(score, 0.75, na.rm = TRUE), 2), "<br>",
+        "Anime Count:", sum(!is.na(score))
+      )
+    )
+  ) +
+  geom_boxplot() +
+  labs(
+    title = "Box Plot of Score by Age Rating",
+    x = "Age Rating",
+    y = "Score"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+ggplotly(p, tooltip = "text") %>%
+  layout(
+    hoverlabel = list(
+      bgcolor = "white",
+      font = list(size = 12)
+    ),
+    margin = list(b = 100),
+    xaxis = list(
+      tickangle = -45,
+      title = list(standoff = 20)
+    )
+  )
+```
+
+### Score vs. Members vs. Favorites
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+anime_data |>
+  mutate(log_members = log(members + 1),
+    log_favorites = log(favorites + 1)) |>
+  ggpairs(columns = c("score", "log_members", "log_favorites"),
+    title = "Pair Scatterplot of Score, Log(Members), and Log(Favorites)",
+    upper = list(continuous = wrap("cor", size = 5)),
+    lower = list(continuous = wrap("smooth", alpha = 0.5, color = "steelblue"))) +
+  theme_minimal()
+```

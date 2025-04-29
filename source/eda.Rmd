@@ -1,0 +1,236 @@
+```{r}
+library(httr)
+library(jsonlite)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(gridExtra)
+library(kableExtra)
+library(GGally)
+```
+
+# Exploratory Data Analysis (EDA)
+
+```{r}
+anime_data <- read.csv("https://raw.githubusercontent.com/elidle/mal-score-prediction/refs/heads/main/data/mal_anime_2015_2024.csv")
+```
+
+```{r}
+summary(anime_data)
+```
+
+```{r}
+anime_data |>
+  group_by(type) |>
+  summarise(count = n(), .groups = 'drop') |>
+  kable(caption = "Count of Anime Types (TV and Movie)", col.names = c("Type", "Count")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+```{r}
+anime_data |>
+  group_by(source) |>
+  summarise(count = n(), .groups = 'drop') |>
+  arrange(desc(count)) |>
+  kable(caption = "Count of Anime Source Material Type", col.names = c("Type", "Count")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+```{r}
+anime_data |>
+  group_by(rating) |>
+  summarise(count = n(), .groups = 'drop') |>
+  arrange(desc(count)) |>
+  kable(caption = "Count of Anime Rating", col.names = c("Type", "Count")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+```{r}
+anime_data |>
+  group_by(year) |>
+  summarise(count = n(), .groups = 'drop') |>
+  ggplot(aes(x = factor(year), y = count)) +  
+    geom_bar(stat = "identity", fill = "steelblue") +     
+    labs(title = "Number of Anime by Year",             
+         x = "Year",                                    
+         y = "Count") +                                  
+    theme_minimal()
+```
+
+```{r}
+# cont vars: scores, members, favorites
+anime_data |>
+  summarise(
+    score_mean = mean(score, na.rm = TRUE),
+    score_median = median(score, na.rm = TRUE),
+    score_min = min(score, na.rm = TRUE),
+    score_max = max(score, na.rm = TRUE),
+    score_sd = sd(score, na.rm = TRUE),
+
+    members_mean = mean(members, na.rm = TRUE),
+    members_median = median(members, na.rm = TRUE),
+    members_min = min(members, na.rm = TRUE),
+    members_max = max(members, na.rm = TRUE),
+    members_sd = sd(members, na.rm = TRUE),
+
+    favorites_mean = mean(favorites, na.rm = TRUE),
+    favorites_median = median(favorites, na.rm = TRUE),
+    favorites_min = min(favorites, na.rm = TRUE),
+    favorites_max = max(favorites, na.rm = TRUE),
+    favorites_sd = sd(favorites, na.rm = TRUE)
+  ) |>
+  pivot_longer(everything(), names_to = "metric", values_to = "value") |>
+  separate(metric, into = c("variable", "statistic"), sep = "_") |>
+  pivot_wider(names_from = statistic, values_from = value) |>
+  kable(caption = "Summary Statistics of Score, Members, and Favorites") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+```{r}
+anime_data |>
+  ggplot(aes(x = score)) +
+  geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Anime Scores",
+       x = "Score",
+       y = "Count") +
+  theme_minimal()
+```
+
+```{r}
+anime_data |>
+  ggplot(aes(x = members)) +
+  geom_histogram(fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Anime Members",
+       x = "Members",
+       y = "Count") +
+  theme_minimal()
+```
+
+```{r}
+anime_data |>
+  ggplot(aes(x = favorites)) +
+  geom_histogram(fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Anime Favorites",
+       x = "Favorites",
+       y = "Count") +
+  theme_minimal()
+```
+
+```{r}
+anime_data |>
+  ggplot(aes(x = log(members + 1))) +
+  geom_histogram(fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Anime Members (logged)",
+       x = "Members",
+       y = "Count") +
+  theme_minimal()
+```
+
+```{r}
+anime_data |>
+  ggplot(aes(x = log(favorites + 1))) +
+  geom_histogram(fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Anime Favorites (logged)",
+       x = "Favorites",
+       y = "Count") +
+  theme_minimal()
+```
+
+```{r}
+# scores vs type
+anime_data |>
+  ggplot(aes(x = type, y = score, fill = type)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Score by Type",
+       x = "Type",
+       y = "Score") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+```{r}
+# Box plot for score vs source material
+anime_data |>
+  ggplot(aes(x = source, y = score, fill = source)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Score by Source",
+       x = "Source",
+       y = "Score") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+# score vs age rating
+anime_data |>
+  ggplot(aes(x = rating, y = score, fill = rating)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Score by Age Rating",
+       x = "Rating",
+       y = "Score") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+# scores vs year
+anime_data |>
+  mutate(year = factor(year)) |>
+  ggplot(aes(x = year, y = score, fill = year)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Score by Year",
+       x = "Source",
+       y = "Score") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+```{r}
+# summary statistics of scores vs studio
+anime_data |>
+  separate_rows(studios, sep = ", ") |>
+  group_by(studios) |>
+  summarise(
+    count = n(), .groups = 'drop',
+    score_mean = mean(score, na.rm = TRUE),
+    score_median = median(score, na.rm = TRUE),
+    score_min = min(score, na.rm = TRUE),
+    score_max = max(score, na.rm = TRUE),
+    score_sd = sd(score, na.rm = TRUE)
+  ) |>
+  arrange(desc(score_mean)) |>
+  kable(caption = "Summary statistics of Scores grouped by Each Studio") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+```{r}
+# summary statistics of scores vs each genre
+anime_data |>
+  separate_rows(genres, sep = ", ") |>
+  group_by(genres) |>
+  summarise(
+    count = n(), .groups = 'drop',
+    score_mean = mean(score, na.rm = TRUE),
+    score_median = median(score, na.rm = TRUE),
+    score_min = min(score, na.rm = TRUE),
+    score_max = max(score, na.rm = TRUE),
+    score_sd = sd(score, na.rm = TRUE)
+  ) |>
+  arrange(desc(score_mean)) |>
+  kable(caption = "Summary statistics of Score grouped by Each Genre") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+```{r}
+# Pair scatterplot of continous variables
+anime_data |>
+  mutate(log_members = log(members + 1),
+    log_favorites = log(favorites + 1)) |>
+  ggpairs(columns = c("score", "log_members", "log_favorites"),
+    title = "Pair Scatterplot of Score, Log(Members), and Log(Favorites)",
+    upper = list(continuous = wrap("cor", size = 5)),
+    lower = list(continuous = wrap("smooth", alpha = 0.5, color = "steelblue"))) +
+  theme_minimal()
+```
