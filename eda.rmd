@@ -113,7 +113,7 @@ anime_data |>
     score_sd = sd(score, na.rm = TRUE)
   ) |>
   arrange(desc(score_mean)) |>
-  kable(caption = "Summary statistics of Score grouped by Each Genre") |>
+  kable(caption = "Summary statistics of Score grouped by Each Studio") |>
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
 
