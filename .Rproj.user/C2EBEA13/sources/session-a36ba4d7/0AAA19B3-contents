@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Predicting MyAnimeList Score of Modern Anime based on their Features</title>
+
+<script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.10.4/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">MyAnimeList Score of Modern Anime Prediction</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="eda.html">EDA</a>
+</li>
+<li>
+  <a href="model.html">Model</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="mailto:razan.rifandi@mail.utoronto.ca">
+    <span class="fas fa-envelope"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/elidle/mal-score-prediction">
+    <span class="fab fa-github"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://linkedin.com/in/razan-ahsan">
+    <span class="fab fa-linkedin"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Predicting MyAnimeList Score of Modern
+Anime based on their Features</h1>
+
+</div>
+
+
+<div id="project-overview" class="section level2">
+<h2>Project Overview</h2>
+<p>Do you know about anime? Anime is a subgenre of animated works
+closely associated with Japan. Just like other TV shows or movies, anime
+came in a lot of genre that makes each work unique in their own way.
+Have you ever wondered what makes an anime “good”? How do we measure
+that “goodness”? Could the studio behind it, the genre, popularity, or
+something else influence how “good” an anime is? To answer that
+question, this project will utilize data from <a
+href="https://myanimelist.net">MyAnimeList</a> (MAL), an anime database
+and community website. MAL score will be used as a response, exploring
+the key factors that influence modern anime ratings by analyzing over
+2,500 shows from 2015–2024 with details on type, age rating, genres,
+source material, studios, and popularity metrics using models such as
+Multiple Linear Regression, Regularized Regression, Random Forest, and
+XGBoost.</p>
+</div>
+<div id="key-insights" class="section level2">
+<h2>Key Insights</h2>
+<ul>
+<li><strong>Random Forest and XGBoost</strong> were the best models and
+performed similarly, suggesting non-linear patterns.</li>
+<li><strong>members</strong>, the popularity metric, were the most
+influential predictors of MAL score by a wide margin.</li>
+<li>Anime <strong>type</strong> (TV or movie) seem to be influential,
+suggesting movies have higher scores than TV series.</li>
+<li>Other variables such as <strong>rating, genre, source material, and
+studio</strong> have specific values that were quite influential to MAL
+score.</li>
+</ul>
+<p>The result details can be found in the PDF report <a
+href="docs/report.pdf">here</a>.</p>
+</div>
+<div id="plots" class="section level2 tabset">
+<h2 class="tabset">Plots</h2>
+<div id="predicted-vs.-actual-mal-score" class="section level3">
+<h3>Predicted vs. Actual MAL Score</h3>
+<div style="text-align: center;">
+<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+</div>
+<div id="feature-importance-of-random-forest" class="section level3">
+<h3>Feature Importance of Random Forest</h3>
+<div style="text-align: center;">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-ef00fb9ac42e3cd86ed4" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-ef00fb9ac42e3cd86ed4">{"x":{"data":[{"orientation":"h","width":0.70000000000000007,"base":0,"x":[0.0069302877269209924],"y":[1],"text":"Variable: `studio_EMT Squared` <br>Importance: 0.00693028772692099","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(240,249,232,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.70000000000000018,"base":0,"x":[0.0070194367011860792],"y":[2],"text":"Variable: genre_Horror <br>Importance: 0.00701943670118608","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(240,249,232,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.70000000000000018,"base":0,"x":[0.0090392864375328803],"y":[3],"text":"Variable: genre_Adventure <br>Importance: 0.00903928643753288","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(239,249,231,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999973,"base":0,"x":[0.0092039480523886889],"y":[4],"text":"Variable: `genre_Sci-Fi` <br>Importance: 0.00920394805238869","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(239,249,231,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.0097315676817610695],"y":[5],"text":"Variable: `studio_Toei Animation` <br>Importance: 0.00973156768176107","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(239,249,231,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.010242004473488726],"y":[6],"text":"Variable: genre_Romance <br>Importance: 0.0102420044734887","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(239,248,231,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.013060320855633484],"y":[7],"text":"Variable: genre_Ecchi <br>Importance: 0.0130603208556335","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(238,248,230,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.013713285958310607],"y":[8],"text":"Variable: genre_Comedy <br>Importance: 0.0137132859583106","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(238,248,230,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.015941051622082359],"y":[9],"text":"Variable: sourceGame <br>Importance: 0.0159410516220824","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(237,247,229,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.016827891202571336],"y":[10],"text":"Variable: ratingR+ - Mild Nudity <br>Importance: 0.0168278912025713","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(237,247,229,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.017249106453999127],"y":[11],"text":"Variable: sourceLight novel <br>Importance: 0.0172491064539991","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(237,247,229,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.019938000049240481],"y":[12],"text":"Variable: genre_Fantasy <br>Importance: 0.0199380000492405","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(236,247,228,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.020487293877096878],"y":[13],"text":"Variable: sourceOriginal <br>Importance: 0.0204872938770969","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(236,247,228,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.029628598432781584],"y":[14],"text":"Variable: genre_Drama <br>Importance: 0.0296285984327816","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(233,245,226,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.029691851070230358],"y":[15],"text":"Variable: ratingPG-13 - Teens 13 or older <br>Importance: 0.0296918510702304","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(233,245,226,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.70000000000000107,"base":0,"x":[0.03235590255098806],"y":[16],"text":"Variable: ratingR - 17+ (violence & profanity) <br>Importance: 0.0323559025509881","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(232,244,225,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.70000000000000284,"base":0,"x":[0.034936859455895711],"y":[17],"text":"Variable: genre_Action <br>Importance: 0.0349368594558957","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(231,244,224,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.70000000000000284,"base":0,"x":[0.066913668746637761],"y":[18],"text":"Variable: sourceManga <br>Importance: 0.0669136687466378","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(222,238,215,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.70000000000000284,"base":0,"x":[0.13178174516139898],"y":[19],"text":"Variable: typeTV <br>Importance: 0.131781745161399","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(202,227,198,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.70000000000000284,"base":0,"x":[0.63273789266716629],"y":[20],"text":"Variable: log_members <br>Importance: 0.632737892667166","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(35,139,69,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1],"y":[0],"name":"f463bae2866bbf1df437b6aaa3d99c5b","type":"scatter","mode":"markers","opacity":0,"hoverinfo":"skip","showlegend":false,"marker":{"color":[0,1],"colorscale":[[0,"#F0F9E8"],[0.0033444816053511709,"#EFF9E7"],[0.0066889632107023419,"#EFF8E7"],[0.010033444816053512,"#EEF8E6"],[0.013377926421404684,"#EDF8E6"],[0.016722408026755856,"#EDF7E5"],[0.020066889632107024,"#ECF7E5"],[0.023411371237458196,"#EBF6E4"],[0.026755852842809368,"#EBF6E3"],[0.030100334448160536,"#EAF6E3"],[0.033444816053511711,"#EAF5E2"],[0.03678929765886288,"#E9F5E2"],[0.040133779264214041,"#E8F5E1"],[0.043478260869565223,"#E8F4E0"],[0.046822742474916398,"#E7F4E0"],[0.05016722408026756,"#E6F3DF"],[0.053511705685618735,"#E6F3DF"],[0.05685618729096991,"#E5F3DE"],[0.060200668896321086,"#E4F2DE"],[0.06354515050167224,"#E4F2DD"],[0.066889632107023422,"#E3F2DC"],[0.070234113712374591,"#E2F1DC"],[0.073578595317725773,"#E2F1DB"],[0.076923076923076927,"#E1F0DB"],[0.080267558528428096,"#E1F0DA"],[0.083612040133779278,"#E0F0D9"],[0.086956521739130446,"#DFEFD9"],[0.090301003344481601,"#DFEFD8"],[0.093645484949832783,"#DEEFD8"],[0.096989966555183965,"#DDEED7"],[0.10033444816053512,"#DDEED7"],[0.10367892976588629,"#DCEED6"],[0.10702341137123747,"#DBEDD5"],[0.11036789297658864,"#DBEDD5"],[0.11371237458193982,"#DAECD4"],[0.11705685618729098,"#D9ECD4"],[0.12040133779264214,"#D9ECD3"],[0.12374581939799333,"#D8EBD3"],[0.12709030100334448,"#D7EBD2"],[0.13043478260869565,"#D7EBD1"],[0.13377926421404684,"#D6EAD1"],[0.13712374581939801,"#D6EAD0"],[0.14046822742474918,"#D5E9D0"],[0.14381270903010035,"#D4E9CF"],[0.14715719063545152,"#D4E9CF"],[0.15050167224080269,"#D3E8CE"],[0.15384615384615385,"#D2E8CD"],[0.15719063545150502,"#D2E8CD"],[0.16053511705685619,"#D1E7CC"],[0.16387959866220739,"#D0E7CC"],[0.16722408026755856,"#D0E6CB"],[0.1705685618729097,"#CFE6CB"],[0.17391304347826089,"#CFE6CA"],[0.17725752508361206,"#CEE5C9"],[0.1806020066889632,"#CDE5C9"],[0.1839464882943144,"#CDE5C8"],[0.18729096989966557,"#CCE4C8"],[0.19063545150501676,"#CBE4C7"],[0.19397993311036793,"#CBE4C7"],[0.19732441471571907,"#CAE3C6"],[0.20066889632107024,"#C9E3C5"],[0.20401337792642141,"#C9E2C5"],[0.20735785953177258,"#C8E2C4"],[0.21070234113712374,"#C7E2C4"],[0.21404682274247494,"#C7E1C3"],[0.21739130434782611,"#C6E1C3"],[0.22073578595317728,"#C6E1C2"],[0.22408026755852847,"#C5E0C1"],[0.22742474916387964,"#C4E0C1"],[0.23076923076923078,"#C4DFC0"],[0.23411371237458195,"#C3DFC0"],[0.23745819397993312,"#C2DFBF"],[0.24080267558528429,"#C2DEBF"],[0.24414715719063548,"#C1DEBE"],[0.24749163879598665,"#C0DEBD"],[0.25083612040133785,"#C0DDBD"],[0.25418060200668896,"#BFDDBC"],[0.25752508361204013,"#BFDDBC"],[0.2608695652173913,"#BEDCBB"],[0.26421404682274247,"#BDDCBB"],[0.26755852842809369,"#BDDBBA"],[0.27090301003344486,"#BCDBBA"],[0.27424749163879603,"#BBDBB9"],[0.27759197324414719,"#BBDAB8"],[0.28093645484949836,"#BADAB8"],[0.28428093645484948,"#B9DAB7"],[0.2876254180602007,"#B9D9B7"],[0.29096989966555187,"#B8D9B6"],[0.29431438127090304,"#B7D8B6"],[0.2976588628762542,"#B7D8B5"],[0.30100334448160537,"#B6D8B4"],[0.30434782608695654,"#B6D7B4"],[0.30769230769230771,"#B5D7B3"],[0.31103678929765888,"#B4D7B3"],[0.31438127090301005,"#B4D6B2"],[0.31772575250836121,"#B3D6B2"],[0.32107023411371238,"#B2D6B1"],[0.32441471571906355,"#B2D5B1"],[0.32775919732441477,"#B1D5B0"],[0.33110367892976594,"#B0D4AF"],[0.33444816053511711,"#B0D4AF"],[0.33779264214046822,"#AFD4AE"],[0.34113712374581939,"#AFD3AE"],[0.34448160535117056,"#AED3AD"],[0.34782608695652178,"#ADD3AD"],[0.35117056856187295,"#ADD2AC"],[0.35451505016722412,"#ACD2AC"],[0.35785953177257529,"#ABD1AB"],[0.3612040133779264,"#ABD1AA"],[0.36454849498327763,"#AAD1AA"],[0.3678929765886288,"#A9D0A9"],[0.37123745819397996,"#A9D0A9"],[0.37458193979933113,"#A8D0A8"],[0.3779264214046823,"#A8CFA8"],[0.38127090301003347,"#A7CFA7"],[0.38461538461538464,"#A6CFA7"],[0.38795986622073586,"#A6CEA6"],[0.39130434782608697,"#A5CEA5"],[0.39464882943143809,"#A4CDA5"],[0.39799331103678931,"#A4CDA4"],[0.40133779264214048,"#A3CDA4"],[0.40468227424749165,"#A2CCA3"],[0.40802675585284282,"#A2CCA3"],[0.41137123745819404,"#A1CCA2"],[0.41471571906354515,"#A0CBA2"],[0.41806020066889638,"#A0CBA1"],[0.42140468227424749,"#9FCAA0"],[0.42474916387959871,"#9FCAA0"],[0.42809364548494988,"#9ECA9F"],[0.43143812709030099,"#9DC99F"],[0.43478260869565222,"#9DC99E"],[0.43812709030100333,"#9CC99E"],[0.44147157190635455,"#9BC89D"],[0.44481605351170572,"#9BC89D"],[0.44816053511705695,"#9AC89C"],[0.45150501672240806,"#99C79C"],[0.45484949832775928,"#99C79B"],[0.4581939799331104,"#98C69A"],[0.46153846153846156,"#98C69A"],[0.46488294314381273,"#97C699"],[0.4682274247491639,"#96C599"],[0.47157190635451512,"#96C598"],[0.47491638795986624,"#95C598"],[0.47826086956521746,"#94C497"],[0.48160535117056857,"#94C497"],[0.48494983277591974,"#93C396"],[0.48829431438127097,"#92C395"],[0.49163879598662208,"#92C395"],[0.4949832775919733,"#91C294"],[0.49832775919732442,"#90C294"],[0.5016722408026757,"#90C293"],[0.50501672240802675,"#8FC193"],[0.50836120401337792,"#8FC192"],[0.51170568561872909,"#8EC192"],[0.51505016722408026,"#8DC091"],[0.51839464882943154,"#8DC091"],[0.52173913043478259,"#8CBF90"],[0.52508361204013387,"#8BBF90"],[0.52842809364548493,"#8BBF8F"],[0.53177257525083621,"#8ABE8E"],[0.53511705685618738,"#89BE8E"],[0.53846153846153844,"#89BE8D"],[0.54180602006688972,"#88BD8D"],[0.54515050167224077,"#87BD8C"],[0.54849498327759205,"#87BD8C"],[0.55183946488294322,"#86BC8B"],[0.55518394648829439,"#86BC8B"],[0.55852842809364556,"#85BB8A"],[0.56187290969899673,"#84BB8A"],[0.56521739130434789,"#84BB89"],[0.56856187290969895,"#83BA88"],[0.57190635451505023,"#82BA88"],[0.5752508361204014,"#82BA87"],[0.57859531772575257,"#81B987"],[0.58193979933110374,"#80B986"],[0.5852842809364549,"#80B886"],[0.58862876254180607,"#7FB885"],[0.59197324414715724,"#7EB885"],[0.59531772575250841,"#7EB784"],[0.59866220735785958,"#7DB784"],[0.60200668896321075,"#7CB783"],[0.60535117056856191,"#7CB683"],[0.60869565217391308,"#7BB682"],[0.61204013377926425,"#7BB681"],[0.61538461538461542,"#7AB581"],[0.61872909698996659,"#79B580"],[0.62207357859531776,"#79B480"],[0.62541806020066892,"#78B47F"],[0.62876254180602009,"#77B47F"],[0.63210702341137126,"#77B37E"],[0.63545150501672243,"#76B37E"],[0.63879598662207371,"#75B37D"],[0.64214046822742477,"#75B27D"],[0.64548494983277593,"#74B27C"],[0.6488294314381271,"#73B17C"],[0.65217391304347827,"#73B17B"],[0.65551839464882955,"#72B17B"],[0.65886287625418061,"#71B07A"],[0.66220735785953189,"#71B079"],[0.66555183946488294,"#70B079"],[0.66889632107023422,"#6FAF78"],[0.67224080267558539,"#6FAF78"],[0.67558528428093645,"#6EAF77"],[0.67892976588628773,"#6DAE77"],[0.68227424749163879,"#6DAE76"],[0.68561872909699006,"#6CAD76"],[0.68896321070234112,"#6BAD75"],[0.6923076923076924,"#6BAD75"],[0.69565217391304357,"#6AAC74"],[0.69899665551839463,"#69AC74"],[0.70234113712374591,"#69AC73"],[0.70568561872909696,"#68AB73"],[0.70903010033444824,"#67AB72"],[0.71237458193979941,"#67AB72"],[0.71571906354515058,"#66AA71"],[0.71906354515050175,"#65AA70"],[0.72240802675585281,"#65A970"],[0.72575250836120409,"#64A96F"],[0.72909698996655525,"#63A96F"],[0.73244147157190642,"#63A86E"],[0.73578595317725759,"#62A86E"],[0.73913043478260876,"#61A86D"],[0.74247491638795993,"#61A76D"],[0.7458193979933111,"#60A76C"],[0.74916387959866226,"#5FA66C"],[0.75250836120401343,"#5FA66B"],[0.7558528428093646,"#5EA66B"],[0.75919732441471577,"#5DA56A"],[0.76254180602006694,"#5DA56A"],[0.76588628762541811,"#5CA569"],[0.76923076923076927,"#5BA469"],[0.77257525083612044,"#5AA468"],[0.77591973244147172,"#5AA468"],[0.77926421404682278,"#59A367"],[0.78260869565217395,"#58A367"],[0.78595317725752512,"#58A266"],[0.78929765886287628,"#57A265"],[0.79264214046822745,"#56A265"],[0.79598662207357851,"#56A164"],[0.79933110367892979,"#55A164"],[0.80267558528428096,"#54A163"],[0.80602006688963224,"#53A063"],[0.80936454849498329,"#53A062"],[0.81270903010033446,"#52A062"],[0.81605351170568563,"#519F61"],[0.81939799331103691,"#519F61"],[0.82274247491638808,"#509E60"],[0.82608695652173914,"#4F9E60"],[0.8294314381270903,"#4E9E5F"],[0.83277591973244147,"#4E9D5F"],[0.83612040133779275,"#4D9D5E"],[0.83946488294314392,"#4C9D5E"],[0.84280936454849498,"#4C9C5D"],[0.84615384615384615,"#4B9C5D"],[0.84949832775919742,"#4A9B5C"],[0.85284280936454859,"#499B5C"],[0.85618729096989976,"#499B5B"],[0.85953177257525082,"#489A5B"],[0.86287625418060199,"#479A5A"],[0.86622073578595327,"#469A5A"],[0.86956521739130443,"#469959"],[0.8729096989966556,"#459958"],[0.87625418060200666,"#449958"],[0.87959866220735805,"#439857"],[0.88294314381270911,"#429857"],[0.88628762541806028,"#429756"],[0.88963210702341144,"#419756"],[0.8929765886287625,"#409755"],[0.89632107023411389,"#3F9655"],[0.89966555183946495,"#3F9654"],[0.90301003344481612,"#3E9654"],[0.90635451505016729,"#3D9553"],[0.90969899665551857,"#3C9553"],[0.91304347826086973,"#3B9552"],[0.91638795986622079,"#3B9452"],[0.91973244147157196,"#3A9451"],[0.92307692307692313,"#399351"],[0.92642140468227441,"#389350"],[0.92976588628762546,"#379350"],[0.93311036789297663,"#36924F"],[0.9364548494983278,"#35924F"],[0.93979933110367886,"#35924E"],[0.94314381270903025,"#34914E"],[0.94648829431438131,"#33914D"],[0.94983277591973247,"#32914D"],[0.95317725752508364,"#31904C"],[0.95652173913043492,"#30904C"],[0.95986622073578609,"#2F8F4B"],[0.96321070234113715,"#2E8F4B"],[0.96655518394648832,"#2D8F4A"],[0.96989966555183948,"#2C8E4A"],[0.97324414715719076,"#2B8E49"],[0.97658862876254193,"#2A8E49"],[0.97993311036789299,"#298D48"],[0.98327759197324416,"#288D48"],[0.98662207357859544,"#278C47"],[0.98996655518394661,"#268C47"],[0.99331103678929777,"#258C46"],[0.99665551839464883,"#248B46"],[1,"#238B45"]],"colorbar":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"thickness":23.039999999999996,"title":"Importance","titlefont":{"color":"rgba(0,0,0,1)","family":"","size":13.283520132835198},"tickmode":"array","ticktext":["0.2","0.4","0.6"],"tickvals":[0.30915117955282068,0.62767292930427432,0.94619467905572796],"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":10.62681610626816},"ticklen":2,"len":0.5}},"xaxis":"x","yaxis":"y","frame":null}],"layout":{"margin":{"t":41.238688252386879,"r":6.6417600664176026,"b":36.529680365296798,"l":225.15566625155671},"font":{"color":"rgba(0,0,0,1)","family":"","size":13.283520132835198},"title":{"text":"Top 20 Most Important Variables (Random Forest)","font":{"color":"rgba(0,0,0,1)","family":"","size":15.940224159402243},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.031636894633358316,0.66437478730052457],"tickmode":"array","ticktext":["0.0","0.2","0.4","0.6"],"tickvals":[0,0.20000000000000004,0.40000000000000002,0.60000000000000009],"categoryorder":"array","categoryarray":["0.0","0.2","0.4","0.6"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.3208800332087995,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":10.62681610626816},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.60379636967432737,"zeroline":false,"anchor":"y","title":{"text":"Importance Score","font":{"color":"rgba(0,0,0,1)","family":"","size":13.283520132835198}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,20.600000000000001],"tickmode":"array","ticktext":["`studio_EMT Squared`","genre_Horror","genre_Adventure","`genre_Sci-Fi`","`studio_Toei Animation`","genre_Romance","genre_Ecchi","genre_Comedy","sourceGame","ratingR+ - Mild Nudity","sourceLight novel","genre_Fantasy","sourceOriginal","genre_Drama","ratingPG-13 - Teens 13 or older","ratingR - 17+ (violence & profanity)","genre_Action","sourceManga","typeTV","log_members"],"tickvals":[1,2,3,4.0000000000000009,5,6.0000000000000009,7,8,9,10,11,12.000000000000002,13,14.000000000000002,15,16,17,18,19,20],"categoryorder":"array","categoryarray":["`studio_EMT Squared`","genre_Horror","genre_Adventure","`genre_Sci-Fi`","`studio_Toei Animation`","genre_Romance","genre_Ecchi","genre_Comedy","sourceGame","ratingR+ - Mild Nudity","sourceLight novel","genre_Fantasy","sourceOriginal","genre_Drama","ratingPG-13 - Teens 13 or older","ratingR - 17+ (violence & profanity)","genre_Action","sourceManga","typeTV","log_members"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.3208800332088013,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.955168119551683},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":13.283520132835198}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":10.62681610626816},"title":{"text":"Importance","font":{"color":"rgba(0,0,0,1)","family":"","size":13.283520132835198}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"3fac159bab0":{"x":{},"y":{},"fill":{},"text":{},"type":"bar"}},"cur_data":"3fac159bab0","visdat":{"3fac159bab0":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="feature-importance-of-xgboost" class="section level3">
+<h3>Feature Importance of XGBoost</h3>
+<div style="text-align: center;">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-03660ac0a5dbdff7c941" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-03660ac0a5dbdff7c941">{"x":{"data":[{"orientation":"h","width":0.70000000000000007,"base":0,"x":[0.0068934382290036008],"y":[1],"text":"Variable: `genre_Slice of Life` <br>Importance: 0.0068934382290036","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(240,249,232,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.70000000000000018,"base":0,"x":[0.007197109837959334],"y":[2],"text":"Variable: genre_Comedy <br>Importance: 0.00719710983795933","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(240,249,232,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.70000000000000018,"base":0,"x":[0.007269852810269318],"y":[3],"text":"Variable: `studio_Studio Deen` <br>Importance: 0.00726985281026932","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(240,249,232,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999973,"base":0,"x":[0.0076589617649008646],"y":[4],"text":"Variable: genre_Adventure <br>Importance: 0.00765896176490086","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(240,249,232,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.0078601331522554774],"y":[5],"text":"Variable: genre_Horror <br>Importance: 0.00786013315225548","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(240,249,232,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.0079157047177357883],"y":[6],"text":"Variable: genre_Romance <br>Importance: 0.00791570471773579","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(239,249,232,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.0084646011031537429],"y":[7],"text":"Variable: ratingPG-13 - Teens 13 or older <br>Importance: 0.00846460110315374","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(239,249,231,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.0097936117481687117],"y":[8],"text":"Variable: sourceGame <br>Importance: 0.00979361174816871","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(239,248,231,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.0099883076364411585],"y":[9],"text":"Variable: `studio_EMT Squared` <br>Importance: 0.00998830763644116","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(238,248,231,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.010254477808176003],"y":[10],"text":"Variable: `studio_Toei Animation` <br>Importance: 0.010254477808176","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(238,248,230,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.010467110700593649],"y":[11],"text":"Variable: genre_Ecchi <br>Importance: 0.0104671107005936","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(238,248,230,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.011650295373130637],"y":[12],"text":"Variable: genre_Fantasy <br>Importance: 0.0116502953731306","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(238,248,230,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.01277920497005474],"y":[13],"text":"Variable: `studio_Visual Flight` <br>Importance: 0.0127792049700547","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(237,247,229,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.013160205115688665],"y":[14],"text":"Variable: sourceOriginal <br>Importance: 0.0131602051156887","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(237,247,229,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.69999999999999929,"base":0,"x":[0.013968804193284249],"y":[15],"text":"Variable: genre_Action <br>Importance: 0.0139688041932842","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(236,247,229,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.70000000000000107,"base":0,"x":[0.015008848899567565],"y":[16],"text":"Variable: ratingR+ - Mild Nudity <br>Importance: 0.0150088488995676","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(236,247,228,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.70000000000000284,"base":0,"x":[0.023853379809091486],"y":[17],"text":"Variable: genre_Drama <br>Importance: 0.0238533798090915","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(231,244,224,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.70000000000000284,"base":0,"x":[0.059012489151446808],"y":[18],"text":"Variable: typeTV <br>Importance: 0.0590124891514468","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(214,234,209,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.70000000000000284,"base":0,"x":[0.061463632360165478],"y":[19],"text":"Variable: sourceManga <br>Importance: 0.0614636323601655","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(213,233,207,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.70000000000000284,"base":0,"x":[0.39179352803406187],"y":[20],"text":"Variable: log_members <br>Importance: 0.391793528034062","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(35,139,69,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1],"y":[0],"name":"52dafc9d64eaac16307a3e5c8cf31469","type":"scatter","mode":"markers","opacity":0,"hoverinfo":"skip","showlegend":false,"marker":{"color":[0,1],"colorscale":[[0,"#F0F9E8"],[0.0033444816053511709,"#EFF9E7"],[0.0066889632107023419,"#EFF8E7"],[0.010033444816053514,"#EEF8E6"],[0.013377926421404679,"#EDF8E6"],[0.016722408026755856,"#EDF7E5"],[0.02006688963210702,"#ECF7E5"],[0.023411371237458196,"#EBF6E4"],[0.026755852842809364,"#EBF6E3"],[0.030100334448160529,"#EAF6E3"],[0.033444816053511704,"#EAF5E2"],[0.03678929765886288,"#E9F5E2"],[0.040133779264214041,"#E8F5E1"],[0.043478260869565209,"#E8F4E0"],[0.046822742474916385,"#E7F4E0"],[0.05016722408026756,"#E6F3DF"],[0.053511705685618714,"#E6F3DF"],[0.05685618729096989,"#E5F3DE"],[0.060200668896321065,"#E4F2DE"],[0.063545150501672226,"#E4F2DD"],[0.066889632107023395,"#E3F2DC"],[0.070234113712374577,"#E2F1DC"],[0.073578595317725745,"#E2F1DB"],[0.076923076923076913,"#E1F0DB"],[0.080267558528428082,"#E1F0DA"],[0.083612040133779264,"#E0F0D9"],[0.086956521739130432,"#DFEFD9"],[0.090301003344481587,"#DFEFD8"],[0.093645484949832769,"#DEEFD8"],[0.096989966555183937,"#DDEED7"],[0.10033444816053512,"#DDEED7"],[0.10367892976588627,"#DCEED6"],[0.10702341137123746,"#DBEDD5"],[0.11036789297658862,"#DBEDD5"],[0.11371237458193978,"#DAECD4"],[0.11705685618729096,"#D9ECD4"],[0.12040133779264213,"#D9ECD3"],[0.12374581939799331,"#D8EBD3"],[0.12709030100334448,"#D7EBD2"],[0.13043478260869565,"#D7EBD1"],[0.13377926421404682,"#D6EAD1"],[0.13712374581939799,"#D6EAD0"],[0.14046822742474915,"#D5E9D0"],[0.14381270903010032,"#D4E9CF"],[0.14715719063545149,"#D4E9CF"],[0.15050167224080263,"#D3E8CE"],[0.15384615384615383,"#D2E8CD"],[0.157190635451505,"#D2E8CD"],[0.16053511705685616,"#D1E7CC"],[0.16387959866220736,"#D0E7CC"],[0.16722408026755853,"#D0E6CB"],[0.17056856187290967,"#CFE6CB"],[0.17391304347826086,"#CFE6CA"],[0.17725752508361203,"#CEE5C9"],[0.18060200668896317,"#CDE5C9"],[0.18394648829431437,"#CDE5C8"],[0.18729096989966554,"#CCE4C8"],[0.19063545150501671,"#CBE4C7"],[0.19397993311036787,"#CBE4C7"],[0.19732441471571904,"#CAE3C6"],[0.20066889632107024,"#C9E3C5"],[0.20401337792642141,"#C9E2C5"],[0.20735785953177255,"#C8E2C4"],[0.21070234113712374,"#C7E2C4"],[0.21404682274247491,"#C7E1C3"],[0.21739130434782605,"#C6E1C3"],[0.22073578595317725,"#C6E1C2"],[0.22408026755852842,"#C5E0C1"],[0.22742474916387956,"#C4E0C1"],[0.23076923076923075,"#C4DFC0"],[0.23411371237458192,"#C3DFC0"],[0.23745819397993312,"#C2DFBF"],[0.24080267558528426,"#C2DEBF"],[0.24414715719063543,"#C1DEBE"],[0.24749163879598662,"#C0DEBD"],[0.25083612040133779,"#C0DDBD"],[0.25418060200668896,"#BFDDBC"],[0.25752508361204013,"#BFDDBC"],[0.2608695652173913,"#BEDCBB"],[0.26421404682274247,"#BDDCBB"],[0.26755852842809363,"#BDDBBA"],[0.2709030100334448,"#BCDBBA"],[0.27424749163879597,"#BBDBB9"],[0.27759197324414714,"#BBDAB8"],[0.28093645484949831,"#BADAB8"],[0.28428093645484948,"#B9DAB7"],[0.28762541806020064,"#B9D9B7"],[0.29096989966555181,"#B8D9B6"],[0.29431438127090298,"#B7D8B6"],[0.29765886287625415,"#B7D8B5"],[0.30100334448160532,"#B6D8B4"],[0.30434782608695654,"#B6D7B4"],[0.30769230769230771,"#B5D7B3"],[0.31103678929765882,"#B4D7B3"],[0.31438127090301005,"#B4D6B2"],[0.31772575250836121,"#B3D6B2"],[0.32107023411371233,"#B2D6B1"],[0.32441471571906355,"#B2D5B1"],[0.32775919732441472,"#B1D5B0"],[0.33110367892976583,"#B0D4AF"],[0.33444816053511706,"#B0D4AF"],[0.33779264214046822,"#AFD4AE"],[0.34113712374581934,"#AFD3AE"],[0.34448160535117056,"#AED3AD"],[0.34782608695652173,"#ADD3AD"],[0.35117056856187284,"#ADD2AC"],[0.35451505016722407,"#ACD2AC"],[0.35785953177257523,"#ABD1AB"],[0.36120401337792635,"#ABD1AA"],[0.36454849498327757,"#AAD1AA"],[0.36789297658862874,"#A9D0A9"],[0.37123745819397991,"#A9D0A9"],[0.37458193979933108,"#A8D0A8"],[0.37792642140468224,"#A8CFA8"],[0.38127090301003341,"#A7CFA7"],[0.38461538461538458,"#A6CFA7"],[0.38795986622073575,"#A6CEA6"],[0.39130434782608697,"#A5CEA5"],[0.39464882943143809,"#A4CDA5"],[0.39799331103678931,"#A4CDA4"],[0.40133779264214048,"#A3CDA4"],[0.40468227424749159,"#A2CCA3"],[0.40802675585284282,"#A2CCA3"],[0.41137123745819398,"#A1CCA2"],[0.4147157190635451,"#A0CBA2"],[0.41806020066889632,"#A0CBA1"],[0.42140468227424749,"#9FCAA0"],[0.4247491638795986,"#9FCAA0"],[0.42809364548494983,"#9ECA9F"],[0.43143812709030099,"#9DC99F"],[0.43478260869565211,"#9DC99E"],[0.43812709030100333,"#9CC99E"],[0.4414715719063545,"#9BC89D"],[0.44481605351170561,"#9BC89D"],[0.44816053511705684,"#9AC89C"],[0.451505016722408,"#99C79C"],[0.45484949832775912,"#99C79B"],[0.45819397993311034,"#98C69A"],[0.46153846153846151,"#98C69A"],[0.46488294314381262,"#97C699"],[0.46822742474916385,"#96C599"],[0.47157190635451501,"#96C598"],[0.47491638795986624,"#95C598"],[0.47826086956521735,"#94C497"],[0.48160535117056852,"#94C497"],[0.48494983277591974,"#93C396"],[0.48829431438127086,"#92C395"],[0.49163879598662208,"#92C395"],[0.49498327759197325,"#91C294"],[0.49832775919732436,"#90C294"],[0.50167224080267558,"#90C293"],[0.50501672240802675,"#8FC193"],[0.50836120401337792,"#8FC192"],[0.51170568561872909,"#8EC192"],[0.51505016722408026,"#8DC091"],[0.51839464882943143,"#8DC091"],[0.52173913043478259,"#8CBF90"],[0.52508361204013376,"#8BBF90"],[0.52842809364548493,"#8BBF8F"],[0.5317725752508361,"#8ABE8E"],[0.53511705685618727,"#89BE8E"],[0.53846153846153844,"#89BE8D"],[0.5418060200668896,"#88BD8D"],[0.54515050167224077,"#87BD8C"],[0.54849498327759194,"#87BD8C"],[0.55183946488294311,"#86BC8B"],[0.55518394648829428,"#86BC8B"],[0.55852842809364545,"#85BB8A"],[0.56187290969899661,"#84BB8A"],[0.56521739130434778,"#84BB89"],[0.56856187290969895,"#83BA88"],[0.57190635451505012,"#82BA88"],[0.57525083612040129,"#82BA87"],[0.57859531772575246,"#81B987"],[0.58193979933110362,"#80B986"],[0.58528428093645479,"#80B886"],[0.58862876254180596,"#7FB885"],[0.59197324414715713,"#7EB885"],[0.5953177257525083,"#7EB784"],[0.59866220735785958,"#7DB784"],[0.60200668896321063,"#7CB783"],[0.6053511705685618,"#7CB683"],[0.60869565217391308,"#7BB682"],[0.61204013377926414,"#7BB681"],[0.61538461538461531,"#7AB581"],[0.61872909698996659,"#79B580"],[0.62207357859531764,"#79B480"],[0.62541806020066881,"#78B47F"],[0.62876254180602009,"#77B47F"],[0.63210702341137126,"#77B37E"],[0.63545150501672232,"#76B37E"],[0.6387959866220736,"#75B37D"],[0.64214046822742477,"#75B27D"],[0.64548494983277582,"#74B27C"],[0.6488294314381271,"#73B17C"],[0.65217391304347816,"#73B17B"],[0.65551839464882944,"#72B17B"],[0.65886287625418061,"#71B07A"],[0.66220735785953166,"#71B079"],[0.66555183946488294,"#70B079"],[0.66889632107023411,"#6FAF78"],[0.67224080267558517,"#6FAF78"],[0.67558528428093645,"#6EAF77"],[0.67892976588628762,"#6DAE77"],[0.68227424749163867,"#6DAE76"],[0.68561872909698995,"#6CAD76"],[0.68896321070234112,"#6BAD75"],[0.69230769230769218,"#6BAD75"],[0.69565217391304346,"#6AAC74"],[0.69899665551839463,"#69AC74"],[0.70234113712374568,"#69AC73"],[0.70568561872909696,"#68AB73"],[0.70903010033444813,"#67AB72"],[0.71237458193979919,"#67AB72"],[0.71571906354515047,"#66AA71"],[0.71906354515050164,"#65AA70"],[0.72240802675585269,"#65A970"],[0.72575250836120397,"#64A96F"],[0.72909698996655514,"#63A96F"],[0.7324414715719062,"#63A86E"],[0.73578595317725748,"#62A86E"],[0.73913043478260865,"#61A86D"],[0.74247491638795982,"#61A76D"],[0.74581939799331098,"#60A76C"],[0.74916387959866215,"#5FA66C"],[0.75250836120401332,"#5FA66B"],[0.75585284280936449,"#5EA66B"],[0.75919732441471566,"#5DA56A"],[0.76254180602006683,"#5DA56A"],[0.76588628762541799,"#5CA569"],[0.76923076923076916,"#5BA469"],[0.77257525083612044,"#5AA468"],[0.7759197324414715,"#5AA468"],[0.77926421404682267,"#59A367"],[0.78260869565217395,"#58A367"],[0.785953177257525,"#58A266"],[0.78929765886287617,"#57A265"],[0.79264214046822745,"#56A265"],[0.79598662207357862,"#56A164"],[0.79933110367892968,"#55A164"],[0.80267558528428096,"#54A163"],[0.80602006688963213,"#53A063"],[0.80936454849498318,"#53A062"],[0.81270903010033446,"#52A062"],[0.81605351170568563,"#519F61"],[0.81939799331103669,"#519F61"],[0.82274247491638797,"#509E60"],[0.82608695652173914,"#4F9E60"],[0.82943143812709019,"#4E9E5F"],[0.83277591973244147,"#4E9D5F"],[0.83612040133779264,"#4D9D5E"],[0.8394648829431437,"#4C9D5E"],[0.84280936454849498,"#4C9C5D"],[0.84615384615384615,"#4B9C5D"],[0.8494983277591972,"#4A9B5C"],[0.85284280936454848,"#499B5C"],[0.85618729096989965,"#499B5B"],[0.85953177257525071,"#489A5B"],[0.86287625418060199,"#479A5A"],[0.86622073578595316,"#469A5A"],[0.86956521739130421,"#469959"],[0.87290969899665549,"#459958"],[0.87625418060200666,"#449958"],[0.87959866220735772,"#439857"],[0.882943143812709,"#429857"],[0.88628762541806017,"#429756"],[0.88963210702341122,"#419756"],[0.8929765886287625,"#409755"],[0.89632107023411367,"#3F9655"],[0.89966555183946473,"#3F9654"],[0.90301003344481601,"#3E9654"],[0.90635451505016718,"#3D9553"],[0.90969899665551823,"#3C9553"],[0.91304347826086951,"#3B9552"],[0.91638795986622068,"#3B9452"],[0.91973244147157174,"#3A9451"],[0.92307692307692302,"#399351"],[0.92642140468227419,"#389350"],[0.92976588628762524,"#379350"],[0.93311036789297652,"#36924F"],[0.93645484949832769,"#35924F"],[0.93979933110367886,"#35924E"],[0.94314381270903003,"#34914E"],[0.9464882943143812,"#33914D"],[0.94983277591973247,"#32914D"],[0.95317725752508353,"#31904C"],[0.9565217391304347,"#30904C"],[0.95986622073578598,"#2F8F4B"],[0.96321070234113704,"#2E8F4B"],[0.96655518394648821,"#2D8F4A"],[0.96989966555183948,"#2C8E4A"],[0.97324414715719054,"#2B8E49"],[0.97658862876254171,"#2A8E49"],[0.97993311036789299,"#298D48"],[0.98327759197324416,"#288D48"],[0.98662207357859522,"#278C47"],[0.98996655518394649,"#268C47"],[0.99331103678929766,"#258C46"],[0.99665551839464872,"#248B46"],[1,"#238B45"]],"colorbar":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"thickness":23.039999999999996,"title":"Importance","titlefont":{"color":"rgba(0,0,0,1)","family":"","size":13.283520132835198},"tickmode":"array","ticktext":["0.1","0.2","0.3"],"tickvals":[0.24275833960468005,0.50169999565143542,0.76064165169819087],"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":10.62681610626816},"ticklen":2,"len":0.5}},"xaxis":"x","yaxis":"y","frame":null}],"layout":{"margin":{"t":41.238688252386879,"r":6.6417600664176026,"b":36.529680365296798,"l":195.2677459526775},"font":{"color":"rgba(0,0,0,1)","family":"","size":13.283520132835198},"title":{"text":"Top 20 Most Important Variables (XGBoost)","font":{"color":"rgba(0,0,0,1)","family":"","size":15.940224159402243},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.019589676401703095,0.41138320443576498],"tickmode":"array","ticktext":["0.0","0.1","0.2","0.3","0.4"],"tickvals":[0,0.10000000000000001,0.20000000000000004,0.30000000000000004,0.40000000000000002],"categoryorder":"array","categoryarray":["0.0","0.1","0.2","0.3","0.4"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.3208800332087995,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":10.62681610626816},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.60379636967432737,"zeroline":false,"anchor":"y","title":{"text":"Importance Score","font":{"color":"rgba(0,0,0,1)","family":"","size":13.283520132835198}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,20.600000000000001],"tickmode":"array","ticktext":["`genre_Slice of Life`","genre_Comedy","`studio_Studio Deen`","genre_Adventure","genre_Horror","genre_Romance","ratingPG-13 - Teens 13 or older","sourceGame","`studio_EMT Squared`","`studio_Toei Animation`","genre_Ecchi","genre_Fantasy","`studio_Visual Flight`","sourceOriginal","genre_Action","ratingR+ - Mild Nudity","genre_Drama","typeTV","sourceManga","log_members"],"tickvals":[1,2,3,4.0000000000000009,5,6.0000000000000009,7,8,9,10,11,12.000000000000002,13,14.000000000000002,15,16,17,18,19,20],"categoryorder":"array","categoryarray":["`genre_Slice of Life`","genre_Comedy","`studio_Studio Deen`","genre_Adventure","genre_Horror","genre_Romance","ratingPG-13 - Teens 13 or older","sourceGame","`studio_EMT Squared`","`studio_Toei Animation`","genre_Ecchi","genre_Fantasy","`studio_Visual Flight`","sourceOriginal","genre_Action","ratingR+ - Mild Nudity","genre_Drama","typeTV","sourceManga","log_members"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.3208800332088013,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.955168119551683},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":13.283520132835198}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":10.62681610626816},"title":{"text":"Importance","font":{"color":"rgba(0,0,0,1)","family":"","size":13.283520132835198}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"3fac3786e7f":{"x":{},"y":{},"fill":{},"text":{},"type":"bar"}},"cur_data":"3fac3786e7f","visdat":{"3fac3786e7f":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</div>
+<div id="sections" class="section level2">
+<h2>Sections</h2>
+<ul>
+<li><a href="about.html">About</a></li>
+<li><a href="eda.html">EDA</a></li>
+<li><a href="model.html">Model</a></li>
+</ul>
+</div>
+
+<footer class="footer">
+  <p style="margin: 0.3rem 0;">&copy; 2025 Razan Ahsan Rifandi • University of Toronto</p>
+  <p style="margin: 0;">
+    <a href="mailto:razan.rifandi@mail.utoronto.ca">razan.rifandi@mail.utoronto.ca</a> •
+    <a href="docs/report.pdf">Download the Full Report</a>
+  </p>
+</footer>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

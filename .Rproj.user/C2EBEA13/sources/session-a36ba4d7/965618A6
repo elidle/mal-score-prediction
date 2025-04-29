@@ -1,0 +1,26 @@
+{
+    "id": "965618A6",
+    "path": "~/UofT/JSC370/mal-score-prediction/model.Rmd",
+    "project_path": "model.Rmd",
+    "type": "r_markdown",
+    "hash": "3247558859",
+    "contents": "",
+    "dirty": false,
+    "created": 1745967047189.0,
+    "source_on_save": false,
+    "relative_order": 6,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "6,17",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1745968457,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1745968457893,
+    "read_only": false,
+    "read_only_alternatives": []
+}

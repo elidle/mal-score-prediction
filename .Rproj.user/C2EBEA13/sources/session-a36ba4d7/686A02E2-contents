@@ -1,0 +1,51 @@
+---
+title: "About"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+## Introduction
+
+Anime is a genre of animated works with styles that has their roots originating from Japan. The word itself originated from the same Japanese term, derived from a shortening of the English word ’animation’. Historically, it is used to specifically refer to animation produced in Japan. In recent times, it more commonly refers to the distinct group of animation styles itself disregarding the work’s country of origin, although a vast majority of them still originates from Japan. Anime itself has had its fair share of history, with the style evolving over time to reflect advancements in animation technology and a growing audience. A noticeable shift is around the year 2012 where HD quality and a defining art style more reminiscent of today’s anime is starting to be adopted.
+
+Anime is typically released via television broadcasting in seasonal cycles. Some may also be broadcasted through theaters instead as movies outside the seasonal cycles. Many anime are adaptations of existing source material, such as manga (Japanese comics), light novels, or video games, while others are original creations. The production of anime is often handled by specialized animation studios (e.g. MAPPA, Kyoto Animation, etc.), with some being associated with their production quality.
+
+Measuring how ”good” an anime is inherently subjective, especially considering the difference in themes such as stories and animation style and how well they resonate with a viewer’s preferences. For the purposes of this research, I am interested in the overall community rating for an anime from the website [MyAnimeList](https://myanimelist.net) (MAL). It is one of the largest online databases and communities for anime alongside AniList and Kitsu.io. Each anime entry on MAL includes detailed information such as its type (TV series or Movie), source material, genres, studios, and demographic ratings (e.g., G, PG-13, R). Users can rate anime on a scale of 1 to 10. Additionally, MAL tracks the number of ”members” (users who have added the anime to their list) and ”favorites” (users who have marked the anime as a favorite). These metrics could provide insights on the correlations of an anime’s features and its rating, which is the main motivation of this research.
+
+For the purposes of this research, I will be defining anime as television series or theatrical releases that are listed as entries on MAL. Aside from those, MAL also lists OVAs (Original Video Animations), commercials, previews, and even music as entries. As they are not what would generally be categorized as animes, they will not be included in this research. Furthermore, this research will specifically focus on anime released over the 10 year period from 2015-2024, post the shift in quality around 2012s, which I will be referring to as “Modern Anime”. With that in mind, the research question for this study is: “How can we predict the MAL score of modern anime based on type, source material, age rating, popularity metrics, animation studios, and genres?”. To answer this research question, I will be exploring several machine learning models such as Multiple Linear Regression, Regularized Regression, Random Forest, and XGBoost. After training, the best models will be interpreted in order to find the most influential features of
+determining MAL score.
+
+## Methods
+
+The data for this research was collected using [Jikan](https://jikan.moe), an unofficial and open-source API for MAL. The data was collected for all anime released between 2015 and 2024 accessed by season for each year (Winter, Spring, Summer, Fall). The variables in the cleaned dataset can be seen in the table below.
+
+```{r, message=FALSE, echo=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+library(knitr)
+library(kableExtra)
+
+feature_table <- data.frame(
+  Feature = c("title_english", "type", "source", "year", "rating", "score", "members", "favorites", "studios", "genres"),
+  Description = c(
+    "English title (or romanized Japanese title if no English title exists)",
+    "Format of the anime (TV or Movie)",
+    "Source material (manga, light novel, original, etc.)",
+    "Release year of the anime",
+    "Demographic rating (G, PG-13, R, etc.)",
+    "Average user rating on MyAnimeList (1-10 scale)",
+    "Number of users who added the anime to their list",
+    "Number of users who marked the anime as favorite",
+    "Animation studio(s) responsible for production",
+    "Associated genres (Action, Romance, Fantasy, etc.)"
+  )
+)
+
+kable(feature_table, "html", caption = "<span style='color:#222222; font-size:16px; font-weight:600;'> Description of Variables in the cleaned Anime Dataset</span>") |>
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = FALSE,
+    position = "center"
+  )
+```

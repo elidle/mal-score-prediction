@@ -1,0 +1,62 @@
+---
+title: "Predicting MyAnimeList Score of Modern Anime based on their Features"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+## Project Overview
+Do you know about anime? Anime is a subgenre of animated works closely associated with Japan. Just like other TV shows or movies, anime came in a lot of genre that makes each work unique in their own way. Have you ever wondered what makes an anime "good"? How do we measure that "goodness"? Could the studio behind it, the genre, popularity, or something else influence how "good" an anime is? To answer that question, this project will utilize data from [MyAnimeList](https://myanimelist.net) (MAL), an anime database and community website. MAL score will be used as a response, exploring the key factors that influence modern anime ratings by analyzing over 2,500 shows from 2015–2024 with details on type, age rating, genres, source material, studios, and popularity metrics using models such as Multiple Linear Regression, Regularized Regression, Random Forest, and XGBoost.
+
+## Key Insights
+- **Random Forest and XGBoost** were the best models and performed similarly, suggesting non-linear patterns.
+- **members**, the popularity metric, were the most influential predictors of MAL score by a wide margin.
+- Anime **type** (TV or movie) seem to be influential, suggesting movies have higher scores than TV series.
+- Other variables such as **rating, genre, source material, and studio** have specific values that were quite influential to MAL score.
+
+The result details can be found in the PDF report [here](docs/report.pdf).
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+source("source/model.R")
+```
+
+## Plots {.tabset}
+### Predicted vs. Actual MAL Score
+<div style="text-align: center;">
+```{r, echo=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+predictions <- predict(rf_model, newdata = anime_data_encoded)
+actual <- anime_data$score
+results <- data.frame(Actual = actual, Predicted = predictions)
+
+p <- ggplot(results, aes(x = Actual, y = Predicted, text = paste("Actual: ", round(Actual, 2), "<br>Predicted: ", round(Predicted, 2)))) +
+  geom_point(alpha = 0.25, color = "steelblue") +
+  geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed") +
+  labs(title = "Predicted vs Actual MAL Scores (Random Forest)",
+       x = "Actual Score",
+       y = "Predicted Score") +
+  theme_minimal() +
+  coord_equal()
+
+p
+```
+</div>
+
+### Feature Importance of Random Forest
+<div style="text-align: center;">
+```{r, echo=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+create_imp_plot(rf_model, "#f0f9e8", "#238b45", "Top 20 Most Important Variables (Random Forest)")
+```
+</div>
+
+### Feature Importance of XGBoost
+<div style="text-align: center;">
+```{r, echo=FALSE, warning=FALSE, style="display: flex; justify-content: center;"}
+create_imp_plot(xgb_model, "#f0f9e8", "#238b45", "Top 20 Most Important Variables (XGBoost)")
+```
+</div>
+
+## Sections
+- [About](about.html)
+- [EDA](eda.html)
+- [Model](model.html)
