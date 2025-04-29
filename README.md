@@ -1,4 +1,4 @@
-# 🚲 MyAnimeList Score of Modern Anime Prediction
+# 🎌 MyAnimeList Score of Modern Anime Prediction
 
 This project explores the problem of predicting MyAnimeList score of anime released over the period 2015-2024 based on their features. Data was collected from [MyAnimeList](https://myanimelist.net) using [Jikan](https://jikan.moe/) API. Several predictive models (MLR, Regularized Regression, Random Forest, and XGBoost) were built and analyzed in order to answer this question.
 
