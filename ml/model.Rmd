@@ -1,10 +1,3 @@
----
-title: "Final Project"
-author: "Razan Ahsan Rifandi"
-date: "2025-04-25"
-output: html_document
----
-
 ```{r}
 library(dplyr)
 library(tidyr)
@@ -25,7 +18,7 @@ library(plotly)
 ```
 
 ```{r}
-anime_data <- read.csv(file = "mal_anime_2015_2024.csv")
+anime_data <- read.csv("https://raw.githubusercontent.com/elidle/mal-score-prediction/refs/heads/main/data/mal_anime_2015_2024.csv")
 ```
 
 ```{r}
@@ -33,14 +26,7 @@ colnames(anime_data)
 ```
 
 ```{r}
-# Encoding for categorical columns:
-# One-hot: type, source, rating (justification: limited entries)
-# anime_data_encoded <- anime_data |>
-#   dummy_cols(select_columns = c("type", "source", "rating"), 
-#              remove_selected_columns = TRUE, 
-#              ignore_na = TRUE)
-
-# Multi-hot: genre, animation
+# Multi-hot Encoding: genre, animation
 studio_dummies <- anime_data |>
   separate_rows(studios, sep = ", ") |>
   mutate(value = 1) |>
