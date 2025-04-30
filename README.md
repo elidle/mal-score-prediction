@@ -11,7 +11,7 @@ The project was completed as part of the **JSC370: Introduction to Data Science*
 👉 [Full PDF Report](docs/report.pdf)
 
 🎬 **Walkthrough Video**  
-👉 [Video](https://utoronto-my.sharepoint.com/:v:/r/personal/razan_rifandi_mail_utoronto_ca/Documents/Final%20Project%20Walkthrough.mkv?csf=1&web=1&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=pcKyz2)
+👉 [Video](https://utoronto-my.sharepoint.com/:v:/g/personal/razan_rifandi_mail_utoronto_ca/EWv4pJX5TXZJs0RB3VnN3mQBkc5D9bNj6sLNCwsxzuQZcw?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=Ot3vbN)
 
 Special thanks to **Prof. Meredith Franklin** for her instruction and feedback in JSC370.
 
